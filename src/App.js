@@ -1,23 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000'); // Replace with your backend URL
 
 function App() {
+  const [content, setContent] = useState('');
+
+  useEffect(() => {
+    socket.on('update', ({ documentId, content }) => {
+      setContent(content);
+    });
+  }, []);
+
+  const handleEdit = (e) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+    socket.emit('edit', { documentId: 'example', content: newContent });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <textarea value={content} onChange={handleEdit} />
     </div>
   );
 }
